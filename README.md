@@ -14,65 +14,110 @@ This project is designed with clean separation of concerns and scalability in mi
 
 ---
 
-## Project Structure
+# Smart Activity Tracker
+
+[![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](#license)
+
+Smart Activity Tracker is a small, modular Python application for defining, organizing, and displaying user activities (title, category, location, and time). The codebase emphasizes clarity and separation of concerns so it can be extended with persistence, filtering, or a web/API layer.
+
+## Table of Contents
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Project Layout](#project-layout)
+- [Quickstart](#quickstart)
+- [Usage](#usage)
+- [Development](#development)
+- [Contributing](#contributing)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Author / Contact](#author--contact)
+
+## Key Features
+- Define activities with structured data (title, category, location, time)
+- Clean, human-readable display of activity details
+- Modular design: core logic separated from the application entry point
+
+## Tech Stack
+- Python 3.11
+- Standard library (no runtime external dependencies by default)
+- Virtual environments for development (`venv`)
+
+## Project Layout
+```
 smart_activity_tracker/
-│
 ├── apps/
-│ ├── init.py
-│ ├── core.py # Core logic and activity handling
-│ └── main.py # Application entry point
-│
+│   ├── __init__.py
+│   ├── core.py        # Core logic and activity handling
+│   └── main.py        # Application entry point
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+```
 
+## Quickstart
+Recommended: use a virtual environment to keep dependencies isolated.
 
----
+1. Clone the repository and enter the directory
 
-## How to Run the Project
-
-1. Clone the repository:
-
+```bash
 git clone https://github.com/CadeSchiano/smart_activity_tracker.git
 cd smart_activity_tracker
+```
 
-python3 -m venv venv
-# macOS/Linux
-source venv/bin/activate  
-# Windows
-venv\Scripts\activate    
+2. Create and activate a virtual environment (macOS/Linux - zsh)
 
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+3. Install dependencies (if any)
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Run the app
+
+You can run the package module or the script directly:
+
+```bash
+python -m apps.main
+# or
 python3 apps/main.py
+```
 
----
+## Usage
+The application currently prints activity information to the console (see `apps/core.py` for the data model and formatting helpers). Extend `apps/main.py` to add input handling, file/database storage, or an API layer.
 
-## Current Features
+## Development
+- Branch from `main` for feature work.
+- Keep changes small and focused; open a PR for review.
 
-Defines activities with structured data
+Recommended developer workflow (example):
 
-Displays activity details in a clean, readable format
+```bash
+# create a feature branch
+git checkout -b feat/add-persistence
 
-Modular code structure separating core logic and execution
+# run the app locally during development
+python -m apps.main
+```
 
----
+If you add third-party packages, update `requirements.txt` with pinned versions, e.g. `fastapi==0.95.0`.
 
-## Future Improvements
 
-User input for creating activities
+## Roadmap
+- Add user-driven activity creation and editing
+- Add simple file-based persistence (JSON/CSV)
+- Add filtering/searching capabilities
+- Add optional REST API (FastAPI) and a small web UI
 
-Data persistence (file or database storage)
+## License
+This project does not include a license file yet. If you'd like to make the project open source, consider adding an `LICENSE` (for example, the MIT License).
 
-Filtering and searching activities
+## Author / Contact
+Cade Schiano — Software Engineering Student
+- GitHub: https://github.com/CadeSchiano
 
-REST API using FastAPI
-
-Web or mobile frontend integration
-
----
-
-##  Author
-
-Cade Schiano
-Software Engineering Student
-GitHub: https://github.com/CadeSchiano
----
