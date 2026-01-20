@@ -37,8 +37,10 @@ git clone https://github.com/CadeSchiano/smart_activity_tracker.git
 cd smart_activity_tracker
 
 python3 -m venv venv
-source venv/bin/activate   # macOS/Linux
-# venv\Scripts\activate    # Windows
+# macOS/Linux
+source venv/bin/activate  
+# Windows
+venv\Scripts\activate    
 
 python3 apps/main.py
 
@@ -68,9 +70,9 @@ Web or mobile frontend integration
 
 ---
 
-## Author
+##  Author
 
 Cade Schiano
-Computer Science Student
+Software Engineering Student
 GitHub: https://github.com/CadeSchiano
 ---
