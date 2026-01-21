@@ -26,17 +26,12 @@ def create_activity(title, category, location, time):
         'time': time
     }
     activities.append(activity)
-    return activity
-
-def add_activity(activity):
-    """
-    Add an activity to the activities list.
-    """
-    activities.append(activity)
-    return activity
-    pass
+    
 
 
+# -------------------------
+# Listing activities
+# -------------------------
 def list_activities():
     """
     List all activities in a readable format.
@@ -50,16 +45,4 @@ def list_activities():
 
 
 
-# -------------------------
-# Script execution
-# -------------------------
 
-def main():
-    #Example
-
-    create_activity("Hiking", "Outdoor", "Mountain Trail", "2024-07-15 08:00")
-    create_activity("Cooking Class", "Indoor", "Community Center", "2024-07-16 18:00")
-    list_activities()
-
-if __name__ == "__main__":
-    main()
