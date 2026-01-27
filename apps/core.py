@@ -8,8 +8,8 @@ No web code, no database code — just Python logic.
 # -------------------------
 # Data storage
 # -------------------------
+import activity
 
-# This will hold all activities
 activities = []
 
 
@@ -17,32 +17,27 @@ activities = []
 # Functions
 # -------------------------
 
-def create_activity(title, category, location, time):
-    
-    activity = {
-        'title': title,
-        'category': category,
-        'location': location,
-        'time': time
-    }
-    activities.append(activity)
+
+
+
+def create_activity(title: str, category: str, location: str, time: str):
+    """
+    Add a new activity to the activities list.
+    """
+    new_activity = activity.Activity(title, category, location, time)
+    activities.append(new_activity)
     
 
 
-# -------------------------
-# Listing activities
-# -------------------------
+
 def list_activities():
     """
     List all activities in a readable format.
     """
+    print("Activities:")
     for activity in activities:
-        print(f"Title: {activity['title']}")
-        print(f"Category: {activity['category']}")
-        print(f"Location: {activity['location']}")
-        print(f"Time: {activity['time']}")
+        print(f"Title: {activity.title}")
+        print(f"Category: {activity.category}")
+        print(f"Location: {activity.location}")
+        print(f"Time: {activity.time}")
         print("-" * 20)
-
-
-
-
