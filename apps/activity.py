@@ -15,3 +15,9 @@ class Activity:
             "location": self.location,
             "time": self.time
         }
+
+    def summary(self) -> str:
+        return f"{self.title} ({self.category}) at {self.location} on {self.time}"
+    
+    
+    
