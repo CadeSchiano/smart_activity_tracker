@@ -12,8 +12,12 @@ def main():
     activity3 = core.create_activity("Book Club", "Social", "Library", "2024-07-22 19:00")
     activity4 = core.create_activity("Rocket League Tournament", "Gaming", "Online", "2024-07-25 20:00")
     
-    # List all activities
-    core.list_activities()
+    summaries = core.list_activities()
+
+    print("Activities:")
+    for summary in summaries:
+        print(f"- {summary}")
+
 
 # Run the main function
 if __name__ == "__main__":

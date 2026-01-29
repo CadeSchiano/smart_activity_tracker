@@ -30,14 +30,17 @@ def create_activity(title: str, category: str, location: str, time: str):
 
 
 
+
 def list_activities():
     """
-    List all activities in a readable format.
+    Return a list of activity summaries.
     """
-    print("Activities:")
-    for activity in activities:
-        print(f"Title: {activity.title}")
-        print(f"Category: {activity.category}")
-        print(f"Location: {activity.location}")
-        print(f"Time: {activity.time}")
-        print("-" * 20)
+    return [act.summary() for act in activities]
+
+
+
+def find_activities_by_category(category: str):
+    """
+    Find activities by category.
+    """
+    return [act for act in activities if act.category == category]
