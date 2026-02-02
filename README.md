@@ -50,6 +50,7 @@ smart_activity_tracker/
 │   ├── __init__.py
 │   ├── core.py        # Core logic and activity handling
 │   └── main.py        # Application entry point
+|   └── activity.py     
 ├── requirements.txt
 ├── README.md
 └── .gitignore
