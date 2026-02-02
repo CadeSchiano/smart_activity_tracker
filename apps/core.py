@@ -8,7 +8,8 @@ No web code, no database code — just Python logic.
 # -------------------------
 # Data storage
 # -------------------------
-import activity
+from apps import activity
+
 
 activities = []
 
