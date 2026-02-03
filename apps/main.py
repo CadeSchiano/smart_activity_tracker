@@ -1,5 +1,6 @@
 # Main application file for managing activities
-import core
+from apps import core
+
 
 
 

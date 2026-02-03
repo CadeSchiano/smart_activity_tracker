@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Hiking",
+    "category": "Outdoor",
+    "location": "Mountain Trail",
+    "time": "2024-08-01 09:00"
+  },
+  {
+    "title": "Cooking Class",
+    "category": "Indoor",
+    "location": "Community Center",
+    "time": "2024-08-05 18:00"
+  },
+  {
+    "title": "Bird Watching",
+    "category": "Outdoor",
+    "location": "Nature Reserve",
+    "time": "2024-08-10 07:00"
+  }
+]
