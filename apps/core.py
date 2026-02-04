@@ -82,6 +82,13 @@ def find_activities_by_category(category: str):
     """
     return [act for act in activities if act.category == category]
 
+def has_activities() -> bool:
+    """
+    Return True if there are any activities loaded.
+    """
+    return len(activities) > 0
+
+
 # -------------------------
 # Startup
 # -------------------------

@@ -2,17 +2,20 @@
 from apps import core
 
 
-
-
 def main():
 
-    
-    # Create some activities
-    activity1 = core.create_activity("Jogging", "Outdoor", "Park", "2024-07-15 08:00")
-    activity2 = core.create_activity("Cooking Class", "Indoor", "Community Center", "2024-07-20 18:00")
-    activity3 = core.create_activity("Book Club", "Social", "Library", "2024-07-22 19:00")
-    activity4 = core.create_activity("Rocket League Tournament", "Gaming", "Online", "2024-07-25 20:00")
-    
+    # STEP 1: Only create demo activities if none exist
+    if not core.has_activities():
+        print("No activities found. Starting fresh.")
+
+        core.create_activity("Hiking", "Outdoor", "Mountain Trail", "2024-08-01 09:00")
+        core.create_activity("Cooking Class", "Indoor", "Community Center", "2024-08-05 18:00")
+        core.create_activity("Bird Watching", "Outdoor", "Nature Reserve", "2024-08-10 07:00")
+
+    else:
+        print("Activities loaded successfully.")
+
+    # STEP 2: Always list activities
     summaries = core.list_activities()
 
     print("Activities:")
@@ -20,7 +23,5 @@ def main():
         print(f"- {summary}")
 
 
-# Run the main function
 if __name__ == "__main__":
     main()
-
