@@ -29,9 +29,13 @@ def load_activities():
 
     if not DATA_FILE.exists():
         return
+    try:
+         with open(DATA_FILE, "r") as file:
+            data = json.load(file)
 
-    with open(DATA_FILE, "r") as file:
-        data = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Corrupted or empty file → treat as no data
+        return
 
     for item in data:
         act = activity.Activity(

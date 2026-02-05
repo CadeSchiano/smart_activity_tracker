@@ -34,3 +34,7 @@ def test_find_activities_by_category():
     assert len(outdoor_activities) == 2
     assert all(act.category == "Outdoor" for act in outdoor_activities)
 
+def test_has_activities():
+    assert not core.has_activities()
+    core.create_activity("Hiking", "Outdoor", "Mountain Trail", "2024-08-01 09:00")
+    assert core.has_activities()
