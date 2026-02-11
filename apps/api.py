@@ -2,7 +2,7 @@ from fastapi import FastAPI, status, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date as date_lib
-
+from fastapi import Query
 from apps import core
 
 app = FastAPI()
@@ -63,11 +63,17 @@ def create_activity(activity: ActivityCreate):
 
 
 @app.get("/activities")
-def list_activities():
+def list_activities(category: Optional[str] = Query(default=None)):
     """
-    List all activities as summaries.
+    List activities.
+    Optionally filter by category.
     """
-    activities = core.list_activities()
+
+    if category:
+        filtered = core.find_activities_by_category(category)
+        activities = [a.summary() for a in filtered]
+    else:
+        activities = core.list_activities()
 
     return {
         "count": len(activities),
