@@ -109,6 +109,26 @@ python -m apps.main
 
 If you add third-party packages, update `requirements.txt` with pinned versions, e.g. `fastapi==0.95.0`.
 
+## Live API
+
+Base URL:
+https://smart-activity-tracker.onrender.com
+
+Interactive API Docs (Swagger):
+https://smart-activity-tracker.onrender.com/docs
+
+Health Docs
+https://smart-activity-tracker.onrender.com/health
+
+Example endpoints:
+
+GET /activities
+POST /activities
+GET /activities?category=Fitness
+
+
+
+
 
 ## Roadmap
 - Add user-driven activity creation and editing
