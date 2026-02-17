@@ -35,6 +35,7 @@ def load_activities():
     for item in data:
         activities.append(
             Activity(
+                id=item["id"],
                 title=item["title"],
                 category=item["category"],
                 location=item["location"],
@@ -70,6 +71,21 @@ def find_activities_by_category(category: str):
 
 def has_activities() -> bool:
     return len(activities) > 0
+
+def get_activity_by_id(activity_id: str) -> Activity:
+    for activity in activities:
+        if activity.id == activity_id:
+            return activity
+    return None
+
+def delete_activity(activity_id: str) -> bool:
+    global activities
+    original_count = len(activities)
+    activities = [a for a in activities if a.id != activity_id]
+    if len(activities) < original_count:
+        save_activities()
+        return True
+    return False
 
 # -------------------------
 # Startup

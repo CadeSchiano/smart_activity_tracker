@@ -79,3 +79,26 @@ def list_activities(category: Optional[str] = Query(default=None)):
         "count": len(activities),
         "activities": activities
     }
+
+@app.get("/activities/{activity_id}")
+def get_activity(activity_id: str):
+    activity = core.get_activity_by_id(activity_id)
+    if activity:
+        return activity.to_dict()
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Activity not found"
+    )
+
+@app.delete("/activities/{activity_id}")
+def delete_activity(activity_id: str):
+    deleted = core.delete_activity(activity_id)
+
+    if deleted:
+        return {"status": "success", "message": "Activity deleted"}
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Activity not found"
+    )

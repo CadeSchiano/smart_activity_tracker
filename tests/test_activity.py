@@ -28,4 +28,6 @@ def test_activity_summary():
         "Yoga", "Wellness", "Studio", "2024-10-03", "10:00"
     )
 
-    assert activity.summary() == "Yoga (Wellness) at Studio on 2024-10-03 at 10:00"
+    summary = activity.summary()
+    assert "Yoga (Wellness) at Studio on 2024-10-03 at 10:00" in summary
+

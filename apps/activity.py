@@ -1,3 +1,5 @@
+import uuid
+
 class Activity:
     def __init__(
         self,
@@ -5,11 +7,12 @@ class Activity:
         category: str,
         location: str,
         date: str,
-        time: str
+        time: str,
+        id: str = None
     ):
         if not all([title, category, location, date, time]):
             raise ValueError("All activity fields must be provided.")
-
+        self.id = id if id else str(uuid.uuid4())
         self.title = title
         self.category = category
         self.location = location
@@ -18,6 +21,7 @@ class Activity:
 
     def to_dict(self) -> dict:
         return {
+            "id": self.id,
             "title": self.title,
             "category": self.category,
             "location": self.location,
@@ -26,4 +30,4 @@ class Activity:
         }
 
     def summary(self) -> str:
-        return f"{self.title} ({self.category}) at {self.location} on {self.date} at {self.time}"
+        return f"{self.id}: {self.title} ({self.category}) at {self.location} on {self.date} at {self.time}"
