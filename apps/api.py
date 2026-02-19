@@ -41,7 +41,7 @@ def create_activity(activity: ActivityCreate):
     activity_date = activity.date or date_lib.today().isoformat()
 
     try:
-        core.create_activity(
+        created_activity = core.create_activity(
             title=activity.title,
             category=activity.category,
             location=activity.location,
@@ -55,11 +55,7 @@ def create_activity(activity: ActivityCreate):
             detail=str(exc)
         )
 
-    return {
-        "status": "success",
-        "message": "Activity created",
-        "date_used": activity_date
-    }
+    return created_activity.to_dict()
 
 
 @app.get("/activities")
@@ -71,9 +67,9 @@ def list_activities(category: Optional[str] = Query(default=None)):
 
     if category:
         filtered = core.find_activities_by_category(category)
-        activities = [a.summary() for a in filtered]
+        activities = [a.to_dict() for a in filtered]
     else:
-        activities = core.list_activities()
+        activities = [a.to_dict() for a in core.get_all_activities()]
 
     return {
         "count": len(activities),
@@ -96,7 +92,7 @@ def delete_activity(activity_id: str):
     deleted = core.delete_activity(activity_id)
 
     if deleted:
-        return {"status": "success", "message": "Activity deleted"}
+        return {"status": "success", "deleted_id": activity_id}
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,

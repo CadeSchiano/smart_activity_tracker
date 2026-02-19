@@ -59,6 +59,7 @@ def create_activity(title: str, category: str, location: str, date: str, time: s
     activity = Activity(title, category, location, date, time)
     activities.append(activity)
     save_activities()
+    return activity
 
 
 def list_activities():
@@ -86,6 +87,10 @@ def delete_activity(activity_id: str) -> bool:
         save_activities()
         return True
     return False
+
+def get_all_activities():
+    return list(activities)
+
 
 # -------------------------
 # Startup
