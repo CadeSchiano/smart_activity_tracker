@@ -6,6 +6,19 @@ Smart Activity Tracker is a Python-based application that allows users to manage
 This project is designed with clean separation of concerns and scalability in mind, making it easy to expand with features like user input, data persistence, filtering, or a web/API interface in the future.
 
 ---
+## Features
+
+- Create activities
+- List all activities
+- Get activity by ID
+- Delete activities
+- Filter activities by category
+- Persistent storage using JSON
+- UUID-based unique identifiers
+- RESTful API with FastAPI
+- Deployed to cloud (Render)
+
+---
 
 ##  Tech Stack
 - **Python 3.11**
@@ -39,9 +52,25 @@ Smart Activity Tracker is a small, modular Python application for defining, orga
 - Modular design: core logic separated from the application entry point
 
 ## Tech Stack
-- Python 3.11
-- Standard library (no runtime external dependencies by default)
-- Virtual environments for development (`venv`)
+
+Backend:
+- Python 3.12
+- FastAPI
+- Uvicorn
+
+Data:
+- JSON file persistence
+
+Testing:
+- pytest
+
+Deployment:
+- Render
+
+Other:
+- UUID-based resource identification
+- RESTful API design
+
 
 ## Project Layout
 ```

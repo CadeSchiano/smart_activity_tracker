@@ -5,7 +5,16 @@ from datetime import date as date_lib
 from fastapi import Query
 from apps import core
 
-app = FastAPI()
+app = FastAPI(
+    title="Smart Activity Tracker API",
+    description="A production-ready REST API for tracking and managing activities. Supports full CRUD operations, filtering, and persistent storage.",
+    version="1.0.0",
+    contact={
+        "name": "Cade Schiano",
+        "url": "https://github.com/CadeSchiano",
+    }
+)
+
 
 # -------------------------
 # Health check
@@ -14,6 +23,16 @@ app = FastAPI()
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "Smart Activity Tracker API",
+        "version": "1.0.0",
+        "docs": "/docs"
+    }
+
 
 # -------------------------
 # Request model
