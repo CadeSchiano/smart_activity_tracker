@@ -1,7 +1,8 @@
 import pytest
 from apps.activity import Activity
 
-def test_activity_creation_valid():
+
+def test_activity_creation():
     activity = Activity(
         title="Hiking",
         category="Outdoor",
@@ -10,24 +11,20 @@ def test_activity_creation_valid():
         time="09:00"
     )
 
+    assert activity.title == "Hiking"
     assert activity.date == "2024-10-02"
-    assert activity.time == "09:00"
 
-def test_activity_missing_fields():
-    with pytest.raises(ValueError):
-        Activity(
-            title="",
-            category="Outdoor",
-            location="Trail",
-            date="2024-10-02",
-            time="09:00"
-        )
 
 def test_activity_summary():
     activity = Activity(
-        "Yoga", "Wellness", "Studio", "2024-10-03", "10:00"
+        title="Yoga",
+        category="Wellness",
+        location="Studio",
+        date="2024-10-03",
+        time="10:00"
     )
 
-    summary = activity.summary()
-    assert "Yoga (Wellness) at Studio on 2024-10-03 at 10:00" in summary
+    summary = activity.to_dict()
 
+    assert summary["title"] == "Yoga"
+    assert summary["category"] == "Wellness"

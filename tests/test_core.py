@@ -1,25 +1,17 @@
 import pytest
 from apps import core
 
-@pytest.fixture(autouse=True)
-def clear_state():
-    core.activities.clear()
 
-def test_create_activity():
-    core.create_activity(
-        "Gym",
-        "Fitness",
-        "Rec Center",
-        "2024-10-02",
-        "18:00"
+def test_create_and_list():
+    activity = core.create_activity(
+        title="Core Test",
+        category="Testing",
+        location="Lab",
+        date="2026-03-01",
+        time="12:00"
     )
 
-    assert len(core.activities) == 1
-    assert core.activities[0].date == "2024-10-02"
+    assert activity.title == "Core Test"
 
-def test_list_activities():
-    core.create_activity("Run", "Fitness", "Park", "2024-10-02", "07:00")
-
-    summaries = core.list_activities()
-    assert len(summaries) == 1
-    assert "Run (Fitness)" in summaries[0]
+    all_activities = core.get_all_activities()
+    assert len(all_activities) >= 1

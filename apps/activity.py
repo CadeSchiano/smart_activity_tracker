@@ -1,25 +1,18 @@
 import uuid
+from sqlalchemy import Column, String
+from apps.database import Base
 
-class Activity:
-    def __init__(
-        self,
-        title: str,
-        category: str,
-        location: str,
-        date: str,
-        time: str,
-        id: str = None
-    ):
-        if not all([title, category, location, date, time]):
-            raise ValueError("All activity fields must be provided.")
-        self.id = id if id else str(uuid.uuid4())
-        self.title = title
-        self.category = category
-        self.location = location
-        self.date = date
-        self.time = time
+class Activity(Base):
+    __tablename__ = "activities"
 
-    def to_dict(self) -> dict:
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    location = Column(String, nullable=False)
+    date = Column(String, nullable=False)
+    time = Column(String, nullable=False)
+
+    def to_dict(self):
         return {
             "id": self.id,
             "title": self.title,
@@ -28,6 +21,3 @@ class Activity:
             "date": self.date,
             "time": self.time
         }
-
-    def summary(self) -> str:
-        return f"{self.id}: {self.title} ({self.category}) at {self.location} on {self.date} at {self.time}"

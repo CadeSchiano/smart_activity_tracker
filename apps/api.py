@@ -4,6 +4,8 @@ from typing import Optional
 from datetime import date as date_lib
 from fastapi import Query
 from apps import core
+from apps.database import engine, Base
+
 
 app = FastAPI(
     title="Smart Activity Tracker API",
@@ -14,6 +16,9 @@ app = FastAPI(
         "url": "https://github.com/CadeSchiano",
     }
 )
+
+Base.metadata.create_all(bind=engine)
+
 
 
 # -------------------------
