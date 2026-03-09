@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy import Column, String
 from apps.database import Base
 
+
 class Activity(Base):
     __tablename__ = "activities"
 

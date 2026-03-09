@@ -1,47 +1,19 @@
-from fastapi import FastAPI, status, HTTPException
+from fastapi import FastAPI, status, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date as date_lib
-from fastapi import Query
-from apps import core
-from apps.database import engine, Base
 
+from apps.database import engine, Base
+from apps import core
 
 app = FastAPI(
     title="Smart Activity Tracker API",
-    description="A production-ready REST API for tracking and managing activities. Supports full CRUD operations, filtering, and persistent storage.",
-    version="1.0.0",
-    contact={
-        "name": "Cade Schiano",
-        "url": "https://github.com/CadeSchiano",
-    }
+    description="A REST API for managing activities with FastAPI and SQLAlchemy",
+    version="1.0.0"
 )
 
 Base.metadata.create_all(bind=engine)
 
-
-
-# -------------------------
-# Health check
-# -------------------------
-
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
-
-
-@app.get("/")
-def root():
-    return {
-        "message": "Smart Activity Tracker API",
-        "version": "1.0.0",
-        "docs": "/docs"
-    }
-
-
-# -------------------------
-# Request model
-# -------------------------
 
 class ActivityCreate(BaseModel):
     title: str
@@ -50,18 +22,22 @@ class ActivityCreate(BaseModel):
     time: str
     date: Optional[str] = None
 
-# -------------------------
-# Endpoints
-# -------------------------
+
+@app.get("/")
+def root():
+    return {
+        "message": "Smart Activity Tracker API",
+        "docs": "/docs"
+    }
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 
 @app.post("/activities", status_code=status.HTTP_201_CREATED)
 def create_activity(activity: ActivityCreate):
-    """
-    Create a new activity.
-    If date is not provided, defaults to today.
-    """
-
-    # Default date logic (API responsibility)
     activity_date = activity.date or date_lib.today().isoformat()
 
     try:
@@ -73,7 +49,6 @@ def create_activity(activity: ActivityCreate):
             time=activity.time
         )
     except ValueError as exc:
-        # Translate domain error → HTTP error
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc)
@@ -84,10 +59,6 @@ def create_activity(activity: ActivityCreate):
 
 @app.get("/activities")
 def list_activities(category: Optional[str] = Query(default=None)):
-    """
-    List activities.
-    Optionally filter by category.
-    """
 
     if category:
         filtered = core.find_activities_by_category(category)
@@ -100,9 +71,12 @@ def list_activities(category: Optional[str] = Query(default=None)):
         "activities": activities
     }
 
+
 @app.get("/activities/{activity_id}")
 def get_activity(activity_id: str):
+
     activity = core.get_activity_by_id(activity_id)
+
     if activity:
         return activity.to_dict()
 
@@ -111,12 +85,17 @@ def get_activity(activity_id: str):
         detail="Activity not found"
     )
 
+
 @app.delete("/activities/{activity_id}")
 def delete_activity(activity_id: str):
+
     deleted = core.delete_activity(activity_id)
 
     if deleted:
-        return {"status": "success", "deleted_id": activity_id}
+        return {
+            "status": "success",
+            "deleted_id": activity_id
+        }
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,

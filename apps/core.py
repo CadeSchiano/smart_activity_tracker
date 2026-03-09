@@ -9,10 +9,6 @@ from .database import SessionLocal
 from .activity import Activity
 
 
-# -------------------------
-# Create
-# -------------------------
-
 def create_activity(title: str, category: str, location: str, date: str, time: str):
     db: Session = SessionLocal()
     try:
@@ -30,10 +26,6 @@ def create_activity(title: str, category: str, location: str, date: str, time: s
     finally:
         db.close()
 
-
-# -------------------------
-# Read
-# -------------------------
 
 def get_all_activities():
     db: Session = SessionLocal()
@@ -59,14 +51,11 @@ def find_activities_by_category(category: str):
         db.close()
 
 
-# -------------------------
-# Delete
-# -------------------------
-
 def delete_activity(activity_id: str) -> bool:
     db: Session = SessionLocal()
     try:
         activity = db.query(Activity).filter(Activity.id == activity_id).first()
+
         if not activity:
             return False
 
