@@ -5,6 +5,7 @@ from datetime import date as date_lib
 
 from apps.database import engine, Base
 from apps import core
+from apps import ai
 
 app = FastAPI(
     title="Smart Activity Tracker API",
@@ -101,3 +102,24 @@ def delete_activity(activity_id: str):
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Activity not found"
     )
+
+@app.delete("/activities")
+def delete_all_activities():
+    activities = core.get_all_activities()
+    for a in activities:
+        core.delete_activity(a.id)
+    return {"status": "all activities deleted"}
+
+@app.get("/ai/summary")
+def ai_summary():
+    return {
+        "summary": ai.summarize_activities()
+    }
+
+
+@app.get("/ai/ask")
+def ai_ask(q: str):
+    return {
+        "question": q,
+        "answer": ai.ask_question(q)
+    }
