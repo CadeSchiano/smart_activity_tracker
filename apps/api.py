@@ -1,21 +1,55 @@
-from fastapi import FastAPI, status, HTTPException, Query
+from fastapi import FastAPI, status, HTTPException, Query, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from typing import Optional
-from datetime import date as date_lib
+from datetime import datetime, timedelta
+from jose import jwt
 
 from apps.database import engine, Base
 from apps import core
 from apps import ai
 
-app = FastAPI(
-    title="Smart Activity Tracker API",
-    description="A REST API for managing activities with FastAPI and SQLAlchemy",
-    version="1.0.0"
+app = FastAPI()
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 Base.metadata.create_all(bind=engine)
 
+# ---------------- AUTH ----------------
+SECRET_KEY = "secret"
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+fake_user = {"username": "admin", "password": "admin"}
+
+
+def verify_token(token: str = Depends(oauth2_scheme)):
+    try:
+        return jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    except:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+@app.post("/login")
+def login(data: dict):
+    if data["username"] == "admin" and data["password"] == "admin":
+        token = jwt.encode(
+            {"sub": data["username"], "exp": datetime.utcnow() + timedelta(hours=2)},
+            SECRET_KEY,
+            algorithm="HS256"
+        )
+        return {"access_token": token}
+    raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
+# ---------------- MODEL ----------------
 class ActivityCreate(BaseModel):
     title: str
     category: str
@@ -24,102 +58,61 @@ class ActivityCreate(BaseModel):
     date: Optional[str] = None
 
 
-@app.get("/")
-def root():
-    return {
-        "message": "Smart Activity Tracker API",
-        "docs": "/docs"
-    }
-
-
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
-
-
-@app.post("/activities", status_code=status.HTTP_201_CREATED)
-def create_activity(activity: ActivityCreate):
-    activity_date = activity.date or date_lib.today().isoformat()
-
-    try:
-        created_activity = core.create_activity(
-            title=activity.title,
-            category=activity.category,
-            location=activity.location,
-            date=activity_date,
-            time=activity.time
-        )
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc)
-        )
-
-    return created_activity.to_dict()
-
-
+# ---------------- ROUTES ----------------
 @app.get("/activities")
-def list_activities(category: Optional[str] = Query(default=None)):
-
-    if category:
-        filtered = core.find_activities_by_category(category)
-        activities = [a.to_dict() for a in filtered]
-    else:
-        activities = [a.to_dict() for a in core.get_all_activities()]
-
-    return {
-        "count": len(activities),
-        "activities": activities
-    }
+def list_activities(user=Depends(verify_token)):
+    activities = [a.to_dict() for a in core.get_all_activities()]
+    return {"activities": activities}
 
 
-@app.get("/activities/{activity_id}")
-def get_activity(activity_id: str):
+@app.post("/activities")
+def create_activity(activity: ActivityCreate, user=Depends(verify_token)):
+    activity_date = activity.date or datetime.today().isoformat()
 
-    activity = core.get_activity_by_id(activity_id)
-
-    if activity:
-        return activity.to_dict()
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Activity not found"
+    created = core.create_activity(
+        activity.title,
+        activity.category,
+        activity.location,
+        activity_date,
+        activity.time
     )
+    return created.to_dict()
+
+
+@app.put("/activities/{activity_id}")
+def update_activity(activity_id: str, activity: ActivityCreate, user=Depends(verify_token)):
+    existing = core.get_activity_by_id(activity_id)
+
+    if not existing:
+        raise HTTPException(status_code=404)
+
+    existing.title = activity.title
+    existing.category = activity.category
+    existing.location = activity.location
+    existing.date = activity.date
+    existing.time = activity.time
+
+    from apps.database import SessionLocal
+    db = SessionLocal()
+    db.merge(existing)
+    db.commit()
+    db.close()
+
+    return existing.to_dict()
 
 
 @app.delete("/activities/{activity_id}")
-def delete_activity(activity_id: str):
+def delete_activity(activity_id: str, user=Depends(verify_token)):
+    core.delete_activity(activity_id)
+    return {"status": "deleted"}
 
-    deleted = core.delete_activity(activity_id)
 
-    if deleted:
-        return {
-            "status": "success",
-            "deleted_id": activity_id
-        }
+# ---------------- AI ----------------
+@app.get("/ai/ask")
+def ask_ai(q: str, user=Depends(verify_token)):
+    return {"answer": ai.ask_question(q)}
 
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Activity not found"
-    )
-
-@app.delete("/activities")
-def delete_all_activities():
-    activities = core.get_all_activities()
-    for a in activities:
-        core.delete_activity(a.id)
-    return {"status": "all activities deleted"}
 
 @app.get("/ai/summary")
-def ai_summary():
-    return {
-        "summary": ai.summarize_activities()
-    }
-
-
-@app.get("/ai/ask")
-def ai_ask(q: str):
-    return {
-        "question": q,
-        "answer": ai.ask_question(q)
-    }
+def summary(user=Depends(verify_token)):
+    return {"summary": ai.summarize_activities()}
