@@ -1,174 +1,222 @@
-# Smart Activity Tracker
+# 🚀 Smart Activity Tracker (Full-Stack AI App)
 
-## Overview
-Smart Activity Tracker is a Python-based application that allows users to manage and display activities in a structured and readable format. Each activity includes details such as title, category, location, and time.
-
-This project is designed with clean separation of concerns and scalability in mind, making it easy to expand with features like user input, data persistence, filtering, or a web/API interface in the future.
-
----
-## Features
-
-- Create activities
-- List all activities
-- Get activity by ID
-- Delete activities
-- Filter activities by category
-- Persistent storage using JSON
-- UUID-based unique identifiers
-- RESTful API with FastAPI
-- Deployed to cloud (Render)
-
----
-
-##  Tech Stack
-- **Python 3.11**
-- Virtual Environments (`venv`)
-- Python Standard Library (no external dependencies yet)
-
----
-
-# Smart Activity Tracker
-
-[![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
+[![React](https://img.shields.io/badge/frontend-react-blue)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/backend-fastapi-green)](https://fastapi.tiangolo.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](#license)
 
-Smart Activity Tracker is a small, modular Python application for defining, organizing, and displaying user activities (title, category, location, and time). The codebase emphasizes clarity and separation of concerns so it can be extended with persistence, filtering, or a web/API layer.
+---
 
-## Table of Contents
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Project Layout](#project-layout)
-- [Quickstart](#quickstart)
-- [Usage](#usage)
-- [Development](#development)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [License](#license)
-- [Author / Contact](#author--contact)
+## 📌 Overview
 
-## Key Features
-- Define activities with structured data (title, category, location, time)
-- Clean, human-readable display of activity details
-- Modular design: core logic separated from the application entry point
+**Smart Activity Tracker** is a full-stack AI-powered web application that allows users to create, manage, and analyze activities through a modern dashboard interface.
 
-## Tech Stack
+The application combines a **React frontend**, **FastAPI backend**, and an **LLM-powered assistant** to enable natural language interaction with user data.
 
-Backend:
+---
+
+## ✨ Features
+
+### 🧩 Core Functionality
+- Create, view, update, and delete activities (CRUD)
+- Categorize activities (e.g., Fitness, School, Work)
+- Persistent storage using SQLite + SQLAlchemy
+- UUID-based activity identifiers
+
+### 🤖 AI Integration
+- Ask questions about your activities using natural language
+- Generate summaries and insights
+- Context-aware responses powered by LLM
+
+### 🔐 Authentication (Planned Upgrade)
+- Future implementation of user registration and login system
+- Secure user-based activity tracking
+
+### 🎨 Frontend (React)
+- Modern dashboard UI
+- Responsive layout
+- Interactive components
+- Real-time updates
+
+### 🌐 Backend API
+- RESTful API with FastAPI
+- Automatic Swagger docs
+- Structured data models with Pydantic
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React (Vite)
+- JavaScript (ES6+)
+- CSS (custom styling)
+
+### Backend
 - Python 3.12
 - FastAPI
+- SQLAlchemy
 - Uvicorn
 
-Data:
-- JSON file persistence
+### AI
+- OpenAI API (LLM integration)
 
-Testing:
-- pytest
+### Auth
+- JWT (current implementation)
+- Database-backed auth (planned)
 
-Deployment:
-- Render
+### Database
+- SQLite
 
-Other:
-- UUID-based resource identification
-- RESTful API design
+### Testing
+- Pytest
 
+### Deployment
+- Render (backend)
+- Vercel (frontend — optional)
 
-## Project Layout
+---
+
+## 📁 Project Structure
+
 ```
 smart_activity_tracker/
 ├── apps/
-│   ├── __init__.py
-│   ├── core.py        # Core logic and activity handling
-│   └── main.py        # Application entry point
-|   └── activity.py
-|   └── api.py
+│   ├── api.py          # FastAPI routes
+│   ├── core.py         # Business logic
+│   ├── activity.py     # Data model
+│   ├── database.py     # DB setup
+│   └── ai.py           # AI integration
+│
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx     # Main React component
+│   │   ├── App.css     # Styling
+│   │   └── main.jsx
+│   └── package.json
+│
+├── tests/
 ├── requirements.txt
-├── README.md
-└── .gitignore
+├── .gitignore
+└── README.md
 ```
 
-## Quickstart
-Recommended: use a virtual environment to keep dependencies isolated.
+---
 
-1. Clone the repository and enter the directory
+## ⚡ Quickstart
+
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/CadeSchiano/smart_activity_tracker.git
 cd smart_activity_tracker
 ```
 
-2. Create and activate a virtual environment (macOS/Linux - zsh)
+### 2. Backend setup
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-3. Install dependencies (if any)
-
-```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Run the app
-
-You can run the package module or the script directly:
+Run backend:
 
 ```bash
-python -m apps.main
-# or
-python3 apps/main.py
+uvicorn apps.api:app --reload
 ```
 
-## Usage
-The application currently prints activity information to the console (see `apps/core.py` for the data model and formatting helpers). Extend `apps/main.py` to add input handling, file/database storage, or an API layer.
+- API: http://127.0.0.1:8000
+- Swagger docs: http://127.0.0.1:8000/docs
 
-## Development
-- Branch from `main` for feature work.
-- Keep changes small and focused; open a PR for review.
-
-Recommended developer workflow (example):
+### 3. Frontend setup
 
 ```bash
-# create a feature branch
-git checkout -b feat/add-persistence
-
-# run the app locally during development
-python -m apps.main
+cd frontend
+npm install
+npm run dev
 ```
 
-If you add third-party packages, update `requirements.txt` with pinned versions, e.g. `fastapi==0.95.0`.
+- Frontend: http://localhost:5173
 
-## Live API
+---
 
-Base URL:
-https://smart-activity-tracker.onrender.com
+## 🤖 Example AI Queries
 
-Interactive API Docs (Swagger):
-https://smart-activity-tracker.onrender.com/docs
+- "What activities do I have today?"
+- "Summarize my schedule"
+- "When is my next workout?"
 
-Health Docs
-https://smart-activity-tracker.onrender.com/health
+---
 
-Example endpoints:
+## 🌐 API Endpoints
 
-GET /activities
-POST /activities
-GET /activities?category=Fitness
+### Activities
 
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/activities` | List all activities |
+| `POST` | `/activities` | Create a new activity |
+| `PUT` | `/activities/{id}` | Update an activity |
+| `DELETE` | `/activities/{id}` | Delete an activity |
 
+### AI
 
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/ai/ask?q=your_question` | Ask a natural language question |
+| `GET` | `/ai/summary` | Get an AI-generated summary |
 
+---
 
-## Roadmap
-- Add user-driven activity creation and editing
-- Add simple file-based persistence (JSON/CSV)
-- Add filtering/searching capabilities
-- Add optional REST API (FastAPI) and a small web UI
+## 🚀 Deployment
 
-## License
-This project does not include a license file yet. If you'd like to make the project open source, consider adding an `LICENSE` (for example, the MIT License).
+### Backend (Render)
+1. Deploy FastAPI service
+2. Add environment variables (API keys)
 
-## Author / Contact
-Cade Schiano — Software Engineering Student
-- GitHub: https://github.com/CadeSchiano
+### Frontend (Vercel)
+1. Connect GitHub repo
+2. Set API base URL
 
+---
+
+## 🧪 Testing
+
+```bash
+pytest
+```
+
+Includes:
+- API testing
+- Core logic validation
+- AI endpoint mocking
+
+---
+
+## 🧠 Future Improvements
+
+- User authentication with database (signup/login)
+- Chat history (ChatGPT-style)
+- Activity analytics dashboard
+- Improved UI/UX and animations
+- Role-based access control
+
+---
+
+## 💼 Resume Description
+
+Built a full-stack AI-powered web application using React and FastAPI, implementing CRUD operations and an LLM-based assistant for natural language interaction with user data.
+
+---
+
+## 👨‍💻 Author
+
+**Cade Schiano**
+- GitHub: [https://github.com/CadeSchiano](https://github.com/CadeSchiano)
+
+---
+
+## 📄 License
+
+[MIT License](https://opensource.org/licenses/MIT)
