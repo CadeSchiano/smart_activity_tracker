@@ -6,10 +6,27 @@ const DEFAULT_PROD_API_URL = "https://smart-activity-tracker.onrender.com";
 const isLocalhost =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
-const API_URL = (
-  import.meta.env.VITE_API_URL ||
-  (isLocalhost ? DEFAULT_LOCAL_API_URL : DEFAULT_PROD_API_URL)
-).replace(/\/$/, "");
+
+const getApiUrl = () => {
+  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
+  const fallbackUrl = isLocalhost ? DEFAULT_LOCAL_API_URL : DEFAULT_PROD_API_URL;
+
+  if (!configuredUrl) {
+    return { apiUrl: fallbackUrl, configError: "" };
+  }
+
+  try {
+    const normalizedUrl = new URL(configuredUrl).toString().replace(/\/$/, "");
+    return { apiUrl: normalizedUrl, configError: "" };
+  } catch {
+    return {
+      apiUrl: fallbackUrl,
+      configError: `Invalid VITE_API_URL "${configuredUrl}". Using ${fallbackUrl} instead.`,
+    };
+  }
+};
+
+const { apiUrl: API_URL, configError: API_CONFIG_ERROR } = getApiUrl();
 
 const parseResponse = async (res) => {
   const text = await res.text();
@@ -40,6 +57,10 @@ function App() {
     setLoading(true);
 
     try {
+      if (API_CONFIG_ERROR) {
+        alert(API_CONFIG_ERROR);
+      }
+
       const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,6 +87,10 @@ function App() {
     setLoading(true);
 
     try {
+      if (API_CONFIG_ERROR) {
+        alert(API_CONFIG_ERROR);
+      }
+
       const res = await fetch(`${API_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,6 +127,12 @@ function App() {
               ? "Sign up to start tracking your activities"
               : "Login to continue"}
           </p>
+
+          {API_CONFIG_ERROR && (
+            <p className="subtitle">
+              Config issue detected. Requests are using {API_URL}
+            </p>
+          )}
 
           <input
             name="email"
