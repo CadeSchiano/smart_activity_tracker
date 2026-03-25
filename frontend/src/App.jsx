@@ -58,6 +58,10 @@ function App() {
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardError, setDashboardError] = useState("");
   const [submittingActivity, setSubmittingActivity] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [aiSummary, setAiSummary] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -112,6 +116,81 @@ function App() {
       loadActivities();
     }
   }, [loggedIn]);
+
+  const fetchAiSummary = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setLoggedIn(false);
+      return;
+    }
+
+    setAiLoading(true);
+    setDashboardError("");
+
+    try {
+      const res = await fetch(`${API_URL}/ai/summary`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await parseResponse(res);
+
+      if (res.ok) {
+        setAiSummary(data?.summary || "No summary available.");
+      } else if (res.status === 401) {
+        localStorage.removeItem("token");
+        setLoggedIn(false);
+        setActivities([]);
+        setDashboardError("Your session expired. Please log in again.");
+      } else {
+        setDashboardError(data?.detail || `Failed to load AI summary (${res.status})`);
+      }
+    } catch {
+      setDashboardError(`Cannot reach API at ${API_URL}`);
+    }
+
+    setAiLoading(false);
+  };
+
+  const askAiQuestion = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setLoggedIn(false);
+      return;
+    }
+
+    setAiLoading(true);
+    setDashboardError("");
+
+    try {
+      const params = new URLSearchParams({ q: aiQuestion });
+      const res = await fetch(`${API_URL}/ai/ask?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await parseResponse(res);
+
+      if (res.ok) {
+        setAiAnswer(data?.answer || "No answer available.");
+      } else if (res.status === 401) {
+        localStorage.removeItem("token");
+        setLoggedIn(false);
+        setActivities([]);
+        setDashboardError("Your session expired. Please log in again.");
+      } else {
+        setDashboardError(data?.detail || `Failed to ask AI (${res.status})`);
+      }
+    } catch {
+      setDashboardError(`Cannot reach API at ${API_URL}`);
+    }
+
+    setAiLoading(false);
+  };
 
   const createActivity = async () => {
     const token = localStorage.getItem("token");
@@ -386,6 +465,52 @@ function App() {
             {submittingActivity ? "Saving..." : "Add activity"}
           </button>
         </div>
+      </section>
+
+      <section className="dashboard-card ai-card">
+        <div className="ai-header">
+          <div>
+            <h2>AI Assistant</h2>
+            <p>Generate a summary or ask a question about this account's activities.</p>
+          </div>
+          <button
+            className="secondary-action"
+            disabled={aiLoading || activities.length === 0}
+            onClick={fetchAiSummary}
+          >
+            {aiLoading ? "Working..." : "Generate summary"}
+          </button>
+        </div>
+
+        <div className="ai-question-row">
+          <input
+            name="aiQuestion"
+            placeholder="Ask something like: What is my next activity?"
+            value={aiQuestion}
+            onChange={(e) => setAiQuestion(e.target.value)}
+          />
+          <button
+            className="primary-action"
+            disabled={aiLoading || !aiQuestion.trim() || activities.length === 0}
+            onClick={askAiQuestion}
+          >
+            {aiLoading ? "Working..." : "Ask AI"}
+          </button>
+        </div>
+
+        {aiSummary && (
+          <div className="ai-output">
+            <h3>Summary</h3>
+            <p>{aiSummary}</p>
+          </div>
+        )}
+
+        {aiAnswer && (
+          <div className="ai-output">
+            <h3>Answer</h3>
+            <p>{aiAnswer}</p>
+          </div>
+        )}
       </section>
 
       {dashboardLoading ? (

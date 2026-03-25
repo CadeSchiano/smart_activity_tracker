@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from jose import jwt
 
 from apps.database import Base, engine, SessionLocal
@@ -82,7 +82,7 @@ def login(data: dict):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = jwt.encode(
-        {"sub": user.email, "exp": datetime.utcnow() + timedelta(hours=2)},
+        {"sub": user.email, "exp": datetime.now(UTC) + timedelta(hours=2)},
         SECRET_KEY,
         algorithm="HS256"
     )
@@ -121,9 +121,9 @@ def delete_activity(activity_id: str, user=Depends(get_current_user)):
 # -------- AI --------
 @app.get("/ai/ask")
 def ask_ai(q: str, user=Depends(get_current_user)):
-    return {"answer": ai.ask_question(q)}
+    return {"answer": ai.ask_question(q, user.id)}
 
 
 @app.get("/ai/summary")
 def summary(user=Depends(get_current_user)):
-    return {"summary": ai.summarize_activities()}
+    return {"summary": ai.summarize_activities(user.id)}
