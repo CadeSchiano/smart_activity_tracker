@@ -1,8 +1,15 @@
 import { useState } from "react";
 import "./App.css";
 
-const API_URL =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+const DEFAULT_LOCAL_API_URL = "http://127.0.0.1:8000";
+const DEFAULT_PROD_API_URL = "https://smart-activity-tracker.onrender.com";
+const isLocalhost =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+const API_URL = (
+  import.meta.env.VITE_API_URL ||
+  (isLocalhost ? DEFAULT_LOCAL_API_URL : DEFAULT_PROD_API_URL)
+).replace(/\/$/, "");
 
 const parseResponse = async (res) => {
   const text = await res.text();
