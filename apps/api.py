@@ -1,22 +1,15 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from jose import jwt
-from apps import core
 
 from apps.database import Base, engine, SessionLocal
 from apps.models import User
 from apps.auth import hash_password, verify_password
 from apps import core, ai
 
-# ---------------- SETUP ----------------
 app = FastAPI()
-
-def clean(obj):
-    data = obj.__dict__.copy()
-    data.pop("_sa_instance_state", None)
-    return data
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,14 +25,21 @@ SECRET_KEY = "supersecretkey"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-# ---------------- AUTH ----------------
+# -------- CLEAN RESPONSE --------
+def clean(obj):
+    data = obj.__dict__.copy()
+    data.pop("_sa_instance_state", None)
+    return data
+
+
+# -------- AUTH --------
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        username = payload.get("sub")
+        email = payload.get("sub")
 
         db = SessionLocal()
-        user = db.query(User).filter(User.username == username).first()
+        user = db.query(User).filter(User.email == email).first()
         db.close()
 
         if not user:
@@ -54,13 +54,13 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 def register(data: dict):
     db = SessionLocal()
 
-    existing = db.query(User).filter(User.username == data["username"]).first()
+    existing = db.query(User).filter(User.email == data["email"]).first()
     if existing:
         db.close()
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=400, detail="Email already exists")
 
     user = User(
-        username=data["username"],
+        email=data["email"],
         hashed_password=hash_password(data["password"])
     )
 
@@ -75,14 +75,14 @@ def register(data: dict):
 def login(data: dict):
     db = SessionLocal()
 
-    user = db.query(User).filter(User.username == data["username"]).first()
+    user = db.query(User).filter(User.email == data["email"]).first()
 
     if not user or not verify_password(data["password"], user.hashed_password):
         db.close()
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = jwt.encode(
-        {"sub": user.username, "exp": datetime.utcnow() + timedelta(hours=2)},
+        {"sub": user.email, "exp": datetime.utcnow() + timedelta(hours=2)},
         SECRET_KEY,
         algorithm="HS256"
     )
@@ -92,16 +92,12 @@ def login(data: dict):
     return {"access_token": token}
 
 
-# ---------------- ACTIVITIES ----------------
+# -------- ACTIVITIES --------
 @app.get("/activities")
 def get_activities(user=Depends(get_current_user)):
-    activities = [a.__dict__ for a in core.get_user_activities(user.id)]
-
-    # clean response (remove SQLAlchemy stuff)
-    for a in activities:
-        a.pop("_sa_instance_state", None)
-
+    activities = [clean(a) for a in core.get_user_activities(user.id)]
     return {"activities": activities}
+
 
 @app.post("/activities")
 def create_activity(activity: dict, user=Depends(get_current_user)):
@@ -111,10 +107,9 @@ def create_activity(activity: dict, user=Depends(get_current_user)):
         activity["location"],
         activity.get("date"),
         activity["time"],
-        user.id   
+        user.id
     )
-
-    return created.__dict__
+    return clean(created)
 
 
 @app.delete("/activities/{activity_id}")
@@ -123,7 +118,7 @@ def delete_activity(activity_id: str, user=Depends(get_current_user)):
     return {"status": "deleted"}
 
 
-# ---------------- AI ----------------
+# -------- AI --------
 @app.get("/ai/ask")
 def ask_ai(q: str, user=Depends(get_current_user)):
     return {"answer": ai.ask_question(q)}

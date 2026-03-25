@@ -3,16 +3,14 @@ from apps.database import Base
 import uuid
 
 
-# ---------------- USER ----------------
 class User(Base):
     __tablename__ = "users"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
 
 
-# ---------------- ACTIVITY ----------------
 class Activity(Base):
     __tablename__ = "activities"
 
@@ -22,6 +20,4 @@ class Activity(Base):
     location = Column(String)
     date = Column(String)
     time = Column(String)
-
-    # 🔥 LINK TO USER
     user_id = Column(String)

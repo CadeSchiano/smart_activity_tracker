@@ -4,19 +4,26 @@ import "./App.css";
 const API_URL = "https://smart-activity-tracker.onrender.com";
 
 function App() {
-  const [form, setForm] = useState({ username: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loggedIn, setLoggedIn] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // ---------------- LOGIN ----------------
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   const login = async () => {
+    setLoading(true);
+
     const res = await fetch(`${API_URL}/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify(form),
     });
 
     const data = await res.json();
+    setLoading(false);
 
     if (res.ok) {
       localStorage.setItem("token", data.access_token);
@@ -26,31 +33,27 @@ function App() {
     }
   };
 
-  // ---------------- REGISTER ----------------
   const register = async () => {
+    setLoading(true);
+
     const res = await fetch(`${API_URL}/register`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify(form),
     });
 
     const data = await res.json();
+    setLoading(false);
 
     if (res.ok) {
       alert("Account created! Please login.");
-      setIsRegister(false); // switch to login screen
+      setIsRegister(false);
+      setForm({ email: "", password: "" });
     } else {
       alert(data.detail || "Register failed");
     }
   };
 
-  // ---------------- LOGOUT ----------------
-  const logout = () => {
-    localStorage.removeItem("token");
-    setLoggedIn(false);
-  };
-
-  // ---------------- AUTH SCREENS ----------------
   if (!loggedIn) {
     return (
       <div className="auth-container">
@@ -58,24 +61,22 @@ function App() {
           <h1>{isRegister ? "Create Account" : "Welcome Back"}</h1>
 
           <input
-            placeholder="Username"
-            value={form.username}
-            onChange={(e) =>
-              setForm({ ...form, username: e.target.value })
-            }
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
           />
 
           <input
-            placeholder="Password"
+            name="password"
             type="password"
+            placeholder="Password"
             value={form.password}
-            onChange={(e) =>
-              setForm({ ...form, password: e.target.value })
-            }
+            onChange={handleChange}
           />
 
           <button onClick={isRegister ? register : login}>
-            {isRegister ? "Register" : "Login"}
+            {loading ? "Loading..." : isRegister ? "Register" : "Login"}
           </button>
 
           <p className="switch">
@@ -89,12 +90,10 @@ function App() {
     );
   }
 
-  // ---------------- DASHBOARD ----------------
   return (
     <div className="dashboard">
       <h1>Dashboard</h1>
-      <button onClick={logout}>Logout</button>
-      <p>You are logged in 🎉</p>
+      <button onClick={() => setLoggedIn(false)}>Logout</button>
     </div>
   );
 }
