@@ -44,15 +44,27 @@ const parseResponse = async (res) => {
 
 function App() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [activityForm, setActivityForm] = useState({
+    title: "",
+    category: "",
+    location: "",
+    date: "",
+    time: "",
+  });
   const [loggedIn, setLoggedIn] = useState(() => Boolean(localStorage.getItem("token")));
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activities, setActivities] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardError, setDashboardError] = useState("");
+  const [submittingActivity, setSubmittingActivity] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleActivityChange = (e) => {
+    setActivityForm({ ...activityForm, [e.target.name]: e.target.value });
   };
 
   const loadActivities = async () => {
@@ -100,6 +112,88 @@ function App() {
       loadActivities();
     }
   }, [loggedIn]);
+
+  const createActivity = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setLoggedIn(false);
+      return;
+    }
+
+    setSubmittingActivity(true);
+    setDashboardError("");
+
+    try {
+      const res = await fetch(`${API_URL}/activities`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(activityForm),
+      });
+
+      const data = await parseResponse(res);
+
+      if (res.ok) {
+        setActivityForm({
+          title: "",
+          category: "",
+          location: "",
+          date: "",
+          time: "",
+        });
+        setActivities((current) => [data, ...current]);
+      } else if (res.status === 401) {
+        localStorage.removeItem("token");
+        setLoggedIn(false);
+        setActivities([]);
+        setDashboardError("Your session expired. Please log in again.");
+      } else {
+        setDashboardError(data?.detail || `Failed to create activity (${res.status})`);
+      }
+    } catch {
+      setDashboardError(`Cannot reach API at ${API_URL}`);
+    }
+
+    setSubmittingActivity(false);
+  };
+
+  const deleteActivity = async (id) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setLoggedIn(false);
+      return;
+    }
+
+    setDashboardError("");
+
+    try {
+      const res = await fetch(`${API_URL}/activities/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await parseResponse(res);
+
+      if (res.ok) {
+        setActivities((current) => current.filter((activity) => activity.id !== id));
+      } else if (res.status === 401) {
+        localStorage.removeItem("token");
+        setLoggedIn(false);
+        setActivities([]);
+        setDashboardError("Your session expired. Please log in again.");
+      } else {
+        setDashboardError(data?.detail || `Failed to delete activity (${res.status})`);
+      }
+    } catch {
+      setDashboardError(`Cannot reach API at ${API_URL}`);
+    }
+  };
 
   // ---------------- LOGIN ----------------
   const login = async () => {
@@ -244,6 +338,56 @@ function App() {
         </button>
       </div>
 
+      <section className="dashboard-card activity-form-card">
+        <h2>Add Activity</h2>
+        <div className="activity-form-grid">
+          <input
+            name="title"
+            placeholder="Activity title"
+            value={activityForm.title}
+            onChange={handleActivityChange}
+          />
+          <input
+            name="category"
+            placeholder="Category"
+            value={activityForm.category}
+            onChange={handleActivityChange}
+          />
+          <input
+            name="location"
+            placeholder="Location"
+            value={activityForm.location}
+            onChange={handleActivityChange}
+          />
+          <input
+            name="date"
+            type="date"
+            value={activityForm.date}
+            onChange={handleActivityChange}
+          />
+          <input
+            name="time"
+            type="time"
+            value={activityForm.time}
+            onChange={handleActivityChange}
+          />
+          <button
+            className="primary-action"
+            disabled={
+              submittingActivity ||
+              !activityForm.title ||
+              !activityForm.category ||
+              !activityForm.location ||
+              !activityForm.date ||
+              !activityForm.time
+            }
+            onClick={createActivity}
+          >
+            {submittingActivity ? "Saving..." : "Add activity"}
+          </button>
+        </div>
+      </section>
+
       {dashboardLoading ? (
         <div className="dashboard-card">
           <p>Loading your activities...</p>
@@ -268,6 +412,12 @@ function App() {
               <h2>{activity.title || "Untitled activity"}</h2>
               <p>{activity.location || "No location provided"}</p>
               <p>{activity.date || "No date provided"}</p>
+              <button
+                className="delete-activity-button"
+                onClick={() => deleteActivity(activity.id)}
+              >
+                Delete
+              </button>
             </article>
           ))}
         </div>
