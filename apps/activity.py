@@ -13,6 +13,8 @@ class Activity(Base):
     date = Column(String, nullable=False)
     time = Column(String, nullable=False)
 
+    user_id = Column(String, nullable=False)
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -20,5 +22,6 @@ class Activity(Base):
             "category": self.category,
             "location": self.location,
             "date": self.date,
-            "time": self.time
+            "time": self.time,
+            "user_id": self.user_id
         }

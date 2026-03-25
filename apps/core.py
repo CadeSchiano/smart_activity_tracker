@@ -1,66 +1,47 @@
-"""
-core.py
-
-Core business logic using SQLAlchemy database.
-"""
-
-from sqlalchemy.orm import Session
-from .database import SessionLocal
-from .activity import Activity
+from apps.database import SessionLocal
+from apps.models import Activity
 
 
-def create_activity(title: str, category: str, location: str, date: str, time: str):
-    db: Session = SessionLocal()
-    try:
-        activity = Activity(
-            title=title,
-            category=category,
-            location=location,
-            date=date,
-            time=time
-        )
-        db.add(activity)
-        db.commit()
-        db.refresh(activity)
-        return activity
-    finally:
-        db.close()
+# ---------------- CREATE ----------------
+def create_activity(title, category, location, date, time, user_id):
+    db = SessionLocal()
+
+    activity = Activity(
+        title=title,
+        category=category,
+        location=location,
+        date=date,
+        time=time,
+        user_id=user_id
+    )
+
+    db.add(activity)
+    db.commit()
+    db.refresh(activity)
+    db.close()
+
+    return activity
 
 
-def get_all_activities():
-    db: Session = SessionLocal()
-    try:
-        return db.query(Activity).all()
-    finally:
-        db.close()
+# ---------------- GET USER ACTIVITIES ----------------
+def get_user_activities(user_id):
+    db = SessionLocal()
+
+    activities = db.query(Activity).filter(Activity.user_id == user_id).all()
+
+    db.close()
+    return activities
 
 
-def get_activity_by_id(activity_id: str):
-    db: Session = SessionLocal()
-    try:
-        return db.query(Activity).filter(Activity.id == activity_id).first()
-    finally:
-        db.close()
+# ---------------- DELETE ----------------
+def delete_activity(activity_id):
+    db = SessionLocal()
 
+    activity = db.query(Activity).filter(Activity.id == activity_id).first()
 
-def find_activities_by_category(category: str):
-    db: Session = SessionLocal()
-    try:
-        return db.query(Activity).filter(Activity.category == category).all()
-    finally:
-        db.close()
-
-
-def delete_activity(activity_id: str) -> bool:
-    db: Session = SessionLocal()
-    try:
-        activity = db.query(Activity).filter(Activity.id == activity_id).first()
-
-        if not activity:
-            return False
-
+    if activity:
         db.delete(activity)
         db.commit()
-        return True
-    finally:
-        db.close()
+
+    db.close()
+    return True

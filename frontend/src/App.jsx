@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://smart-activity-tracker.onrender.com";
 
 function App() {
   const [activities, setActivities] = useState([]);
@@ -106,15 +106,45 @@ function App() {
 
   // ---------------- LOGIN SCREEN ----------------
   if (!loggedIn) {
-    return (
-      <div className="login">
-        <h1>Login</h1>
-        <input placeholder="username" onChange={(e)=>setForm({...form, username:e.target.value})}/>
-        <input placeholder="password" type="password" onChange={(e)=>setForm({...form, password:e.target.value})}/>
-        <button onClick={login}>Login</button>
-      </div>
-    );
+  return (
+    <div className="login">
+      <h1>Welcome</h1>
+
+      <input
+        placeholder="username"
+        onChange={(e)=>setForm({...form, username:e.target.value})}
+      />
+
+      <input
+        placeholder="password"
+        type="password"
+        onChange={(e)=>setForm({...form, password:e.target.value})}
+      />
+
+      <button onClick={login}>Login</button>
+
+      <button onClick={register} className="secondary">
+        Register
+      </button>
+    </div>
+  );
+}
+
+const register = async () => {
+  const res = await fetch(`${API_URL}/register`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(form)
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    alert("Account created! You can now log in.");
+  } else {
+    alert(data.detail || "Error creating account");
   }
+};
 
   // ---------------- APP ----------------
   return (

@@ -93,3 +93,12 @@ button:hover {
 .login button {
   width: 250px;
 }
+
+.secondary {
+  background: #334155;
+  margin-top: 10px;
+}
+
+.secondary:hover {
+  background: #475569;
+}
