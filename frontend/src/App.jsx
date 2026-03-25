@@ -1,7 +1,22 @@
 import { useState } from "react";
 import "./App.css";
 
-const API_URL = "https://smart-activity-tracker.onrender.com";
+const API_URL =
+  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+
+const parseResponse = async (res) => {
+  const text = await res.text();
+
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { detail: text };
+  }
+};
 
 function App() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -24,16 +39,16 @@ function App() {
         body: JSON.stringify(form),
       });
 
-      const data = await res.json();
+      const data = await parseResponse(res);
 
       if (res.ok) {
         localStorage.setItem("token", data.access_token);
         setLoggedIn(true);
       } else {
-        alert(data.detail || "Login failed");
+        alert(data?.detail || `Login failed (${res.status})`);
       }
     } catch {
-      alert("Server error");
+      alert(`Cannot reach API at ${API_URL}`);
     }
 
     setLoading(false);
@@ -50,17 +65,17 @@ function App() {
         body: JSON.stringify(form),
       });
 
-      const data = await res.json();
+      const data = await parseResponse(res);
 
       if (res.ok) {
         alert("Account created! Please login.");
         setIsRegister(false);
         setForm({ email: "", password: "" });
       } else {
-        alert(data.detail || "Register failed");
+        alert(data?.detail || `Register failed (${res.status})`);
       }
     } catch {
-      alert("Server error");
+      alert(`Cannot reach API at ${API_URL}`);
     }
 
     setLoading(false);
