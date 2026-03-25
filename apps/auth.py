@@ -1,7 +1,10 @@
 from passlib.context import CryptContext
 from passlib.exc import UnknownHashError
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(
+    schemes=["pbkdf2_sha256", "bcrypt"],
+    deprecated="auto",
+)
 
 
 def hash_password(password: str):
