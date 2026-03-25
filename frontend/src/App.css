@@ -1,11 +1,11 @@
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+  background: radial-gradient(circle at top, #0f172a, #020617);
   color: white;
 }
 
-/* CENTER EVERYTHING */
+/* CENTER */
 .auth-container {
   display: flex;
   height: 100vh;
@@ -15,62 +15,81 @@ body {
 
 /* CARD */
 .auth-card {
-  background: rgba(30, 41, 59, 0.9);
+  background: rgba(15, 23, 42, 0.95);
   padding: 40px;
-  border-radius: 16px;
-  width: 320px;
+  border-radius: 18px;
+  width: 340px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  gap: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
 }
 
 /* TITLE */
-.auth-card h1 {
+.title {
   text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* SUBTITLE */
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #94a3b8;
   margin-bottom: 10px;
 }
 
 /* INPUTS */
 .auth-card input {
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
-  background: #1e293b;
+  background: #020617;
   color: white;
+  border: 1px solid #1e293b;
 }
 
 /* BUTTON */
 .auth-card button {
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.25s ease;
 }
 
 .auth-card button:hover {
-  transform: scale(1.03);
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
 }
 
-/* SWITCH TEXT */
+.auth-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* SWITCH */
 .switch {
   text-align: center;
   font-size: 14px;
+  color: #94a3b8;
 }
 
 .switch span {
   color: #8b5cf6;
   cursor: pointer;
-  margin-left: 5px;
+  margin-left: 6px;
+  font-weight: 500;
 }
 
 /* DASHBOARD */
 .dashboard {
   text-align: center;
-  padding: 50px;
+  padding: 60px;
 }
