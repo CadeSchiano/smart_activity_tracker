@@ -189,7 +189,7 @@ const register = async () => {
 </div>
     </div>
   );
-}
+
 
 
 export default App;
