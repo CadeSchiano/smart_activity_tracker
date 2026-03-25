@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 const DEFAULT_LOCAL_API_URL = "http://127.0.0.1:8000";
@@ -44,13 +44,62 @@ const parseResponse = async (res) => {
 
 function App() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(() => Boolean(localStorage.getItem("token")));
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activities, setActivities] = useState([]);
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+  const [dashboardError, setDashboardError] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  const loadActivities = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setActivities([]);
+      setDashboardError("");
+      return;
+    }
+
+    setDashboardLoading(true);
+    setDashboardError("");
+
+    try {
+      const res = await fetch(`${API_URL}/activities`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await parseResponse(res);
+
+      if (res.ok) {
+        setActivities(data?.activities || []);
+      } else if (res.status === 401) {
+        localStorage.removeItem("token");
+        setLoggedIn(false);
+        setActivities([]);
+        setDashboardError("Your session expired. Please log in again.");
+      } else {
+        setActivities([]);
+        setDashboardError(data?.detail || `Failed to load dashboard (${res.status})`);
+      }
+    } catch {
+      setActivities([]);
+      setDashboardError(`Cannot reach API at ${API_URL}`);
+    }
+
+    setDashboardLoading(false);
+  };
+
+  useEffect(() => {
+    if (loggedIn) {
+      loadActivities();
+    }
+  }, [loggedIn]);
 
   // ---------------- LOGIN ----------------
   const login = async () => {
@@ -176,9 +225,53 @@ function App() {
   // ---------------- DASHBOARD ----------------
   return (
     <div className="dashboard">
-      <h1>Dashboard</h1>
-      <button onClick={() => setLoggedIn(false)}>Logout</button>
-      <p>You are logged in 🎉</p>
+      <div className="dashboard-header">
+        <div>
+          <p className="eyebrow">Smart Activity Tracker</p>
+          <h1>Dashboard</h1>
+        </div>
+
+        <button
+          className="logout-button"
+          onClick={() => {
+            localStorage.removeItem("token");
+            setActivities([]);
+            setDashboardError("");
+            setLoggedIn(false);
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
+      {dashboardLoading ? (
+        <div className="dashboard-card">
+          <p>Loading your activities...</p>
+        </div>
+      ) : dashboardError ? (
+        <div className="dashboard-card">
+          <p>{dashboardError}</p>
+        </div>
+      ) : activities.length === 0 ? (
+        <div className="dashboard-card">
+          <h2>No activities yet</h2>
+          <p>Your account is working. Add your first activity to populate the dashboard.</p>
+        </div>
+      ) : (
+        <div className="activity-grid">
+          {activities.map((activity) => (
+            <article key={activity.id} className="activity-card">
+              <div className="activity-card-top">
+                <span className="activity-category">{activity.category || "Uncategorized"}</span>
+                <span className="activity-time">{activity.time || "No time set"}</span>
+              </div>
+              <h2>{activity.title || "Untitled activity"}</h2>
+              <p>{activity.location || "No location provided"}</p>
+              <p>{activity.date || "No date provided"}</p>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
