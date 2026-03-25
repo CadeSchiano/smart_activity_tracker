@@ -140,10 +140,11 @@ const register = async () => {
   const data = await res.json();
 
   if (res.ok) {
-    alert("Account created! You can now log in.");
+    alert("Account created! Now login.");
   } else {
     alert(data.detail || "Error creating account");
   }
+};
 };
 
   // ---------------- APP ----------------
