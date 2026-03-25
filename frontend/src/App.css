@@ -1,104 +1,76 @@
-/* GLOBAL */
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
-  background: #0f172a;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
   color: white;
 }
 
-/* MAIN APP */
-.app {
-  max-width: 900px;
-  margin: auto;
-  padding: 40px 20px;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-/* CARDS */
-.card {
-  background: #1e293b;
-  padding: 25px;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-}
-
-/* FORM LAYOUT */
-.card input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 14px;
-}
-
-/* BUTTONS */
-button {
-  margin-top: 10px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  background: #6366f1;
-  color: white;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button:hover {
-  background: #4f46e5;
-}
-
-/* ACTIVITIES */
-.activity {
+/* CENTER EVERYTHING */
+.auth-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #334155;
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-/* AI BOX */
-.ai-box {
-  margin-top: 15px;
-  padding: 12px;
-  background: #334155;
-  border-radius: 8px;
-}
-
-/* LOGIN SCREEN */
-.login {
   height: 100vh;
-  display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-/* LOGIN CARD */
-.login input {
-  width: 250px;
-  padding: 10px;
-  margin: 8px 0;
+/* CARD */
+.auth-card {
+  background: rgba(30, 41, 59, 0.9);
+  padding: 40px;
+  border-radius: 16px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* TITLE */
+.auth-card h1 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* INPUTS */
+.auth-card input {
+  padding: 12px;
   border-radius: 8px;
   border: none;
+  background: #1e293b;
+  color: white;
 }
 
-.login button {
-  width: 250px;
+/* BUTTON */
+.auth-card button {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.secondary {
-  background: #334155;
-  margin-top: 10px;
+.auth-card button:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
 }
 
-.secondary:hover {
-  background: #475569;
+/* SWITCH TEXT */
+.switch {
+  text-align: center;
+  font-size: 14px;
+}
+
+.switch span {
+  color: #8b5cf6;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+/* DASHBOARD */
+.dashboard {
+  text-align: center;
+  padding: 50px;
 }
