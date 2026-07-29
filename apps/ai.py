@@ -1,4 +1,5 @@
 import os
+import logging
 from collections import Counter
 
 try:
@@ -11,6 +12,8 @@ from openai import OpenAI
 
 from apps import core
 
+logger = logging.getLogger(__name__)
+
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
@@ -18,7 +21,8 @@ client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 
 def _get_user_activities(user_id):
-    activities = core.get_user_activities(user_id)
+    # Keep model requests bounded so an account cannot create an unbounded AI bill.
+    activities = core.get_user_activities(user_id, limit=100)
 
     unique = set()
     clean_activities = []
@@ -120,8 +124,9 @@ Activities:
             ],
         )
         return response.choices[0].message.content
-    except Exception as error:
-        return f"Error generating summary: {error}"
+    except Exception:
+        logger.exception("OpenAI summary generation failed")
+        return "Unable to generate a summary right now. Please try again later."
 
 
 def ask_question(question: str, user_id):
@@ -162,5 +167,6 @@ Question:
             ],
         )
         return response.choices[0].message.content
-    except Exception as error:
-        return f"Error answering question: {error}"
+    except Exception:
+        logger.exception("OpenAI question answering failed")
+        return "Unable to answer that question right now. Please try again later."

@@ -1,3 +1,8 @@
+import os
+
+# The production app deliberately refuses to start without this secret.
+os.environ.setdefault("JWT_SECRET_KEY", "test-only-secret-that-is-at-least-32-characters")
+
 from apps.database import Base, engine
 
 

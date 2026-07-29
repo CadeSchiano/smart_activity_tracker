@@ -10,7 +10,7 @@ def auth_headers(email="api-test@example.com", password="secret123"):
         "/register",
         json={"email": email, "password": password},
     )
-    assert register_response.status_code == 200
+    assert register_response.status_code == 201
 
     login_response = client.post(
         "/login",
@@ -75,7 +75,11 @@ def test_ai_endpoints_require_auth_and_return_data():
     assert summary_response.status_code == 200
     assert "summary" in summary_response.json()
 
-    ask_response = client.get("/ai/ask", headers=headers, params={"q": "What is my next activity?"})
+    ask_response = client.post(
+        "/ai/ask",
+        headers=headers,
+        json={"q": "What is my next activity?"},
+    )
     assert ask_response.status_code == 200
     assert "answer" in ask_response.json()
 
@@ -83,3 +87,26 @@ def test_ai_endpoints_require_auth_and_return_data():
 def test_protected_routes_reject_missing_token():
     response = client.get("/activities")
     assert response.status_code == 401
+
+
+def test_user_cannot_delete_another_users_activity():
+    owner_headers = auth_headers(email="owner@example.com")
+    attacker_headers = auth_headers(email="attacker@example.com")
+
+    created = client.post(
+        "/activities",
+        headers=owner_headers,
+        json={
+            "title": "Private activity",
+            "category": "Personal",
+            "location": "Home",
+            "date": "2026-03-01",
+            "time": "12:00",
+        },
+    ).json()
+
+    response = client.delete(f"/activities/{created['id']}", headers=attacker_headers)
+    assert response.status_code == 404
+
+    owner_activities = client.get("/activities", headers=owner_headers).json()["activities"]
+    assert [activity["id"] for activity in owner_activities] == [created["id"]]

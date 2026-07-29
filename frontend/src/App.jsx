@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 
 const DEFAULT_LOCAL_API_URL = "http://127.0.0.1:8000";
@@ -51,7 +51,8 @@ function App() {
     date: "",
     time: "",
   });
-  const [loggedIn, setLoggedIn] = useState(() => Boolean(localStorage.getItem("token")));
+  const [token, setToken] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activities, setActivities] = useState([]);
@@ -71,10 +72,8 @@ function App() {
     setActivityForm({ ...activityForm, [e.target.name]: e.target.value });
   };
 
-  const loadActivities = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
+  const loadActivities = async (accessToken = token) => {
+    if (!accessToken) {
       setActivities([]);
       setDashboardError("");
       return;
@@ -86,7 +85,7 @@ function App() {
     try {
       const res = await fetch(`${API_URL}/activities`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -95,7 +94,7 @@ function App() {
       if (res.ok) {
         setActivities(data?.activities || []);
       } else if (res.status === 401) {
-        localStorage.removeItem("token");
+        setToken(null);
         setLoggedIn(false);
         setActivities([]);
         setDashboardError("Your session expired. Please log in again.");
@@ -111,15 +110,7 @@ function App() {
     setDashboardLoading(false);
   };
 
-  useEffect(() => {
-    if (loggedIn) {
-      loadActivities();
-    }
-  }, [loggedIn]);
-
   const fetchAiSummary = async () => {
-    const token = localStorage.getItem("token");
-
     if (!token) {
       setLoggedIn(false);
       return;
@@ -140,7 +131,7 @@ function App() {
       if (res.ok) {
         setAiSummary(data?.summary || "No summary available.");
       } else if (res.status === 401) {
-        localStorage.removeItem("token");
+        setToken(null);
         setLoggedIn(false);
         setActivities([]);
         setDashboardError("Your session expired. Please log in again.");
@@ -155,8 +146,6 @@ function App() {
   };
 
   const askAiQuestion = async () => {
-    const token = localStorage.getItem("token");
-
     if (!token) {
       setLoggedIn(false);
       return;
@@ -166,11 +155,13 @@ function App() {
     setDashboardError("");
 
     try {
-      const params = new URLSearchParams({ q: aiQuestion });
-      const res = await fetch(`${API_URL}/ai/ask?${params.toString()}`, {
+      const res = await fetch(`${API_URL}/ai/ask`, {
+        method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ q: aiQuestion }),
       });
 
       const data = await parseResponse(res);
@@ -178,7 +169,7 @@ function App() {
       if (res.ok) {
         setAiAnswer(data?.answer || "No answer available.");
       } else if (res.status === 401) {
-        localStorage.removeItem("token");
+        setToken(null);
         setLoggedIn(false);
         setActivities([]);
         setDashboardError("Your session expired. Please log in again.");
@@ -193,8 +184,6 @@ function App() {
   };
 
   const createActivity = async () => {
-    const token = localStorage.getItem("token");
-
     if (!token) {
       setLoggedIn(false);
       return;
@@ -225,7 +214,7 @@ function App() {
         });
         setActivities((current) => [data, ...current]);
       } else if (res.status === 401) {
-        localStorage.removeItem("token");
+        setToken(null);
         setLoggedIn(false);
         setActivities([]);
         setDashboardError("Your session expired. Please log in again.");
@@ -240,8 +229,6 @@ function App() {
   };
 
   const deleteActivity = async (id) => {
-    const token = localStorage.getItem("token");
-
     if (!token) {
       setLoggedIn(false);
       return;
@@ -262,7 +249,7 @@ function App() {
       if (res.ok) {
         setActivities((current) => current.filter((activity) => activity.id !== id));
       } else if (res.status === 401) {
-        localStorage.removeItem("token");
+        setToken(null);
         setLoggedIn(false);
         setActivities([]);
         setDashboardError("Your session expired. Please log in again.");
@@ -292,8 +279,9 @@ function App() {
       const data = await parseResponse(res);
 
       if (res.ok) {
-        localStorage.setItem("token", data.access_token);
+        setToken(data.access_token);
         setLoggedIn(true);
+        await loadActivities(data.access_token);
       } else {
         alert(data?.detail || `Login failed (${res.status})`);
       }
@@ -339,7 +327,7 @@ function App() {
   if (!loggedIn) {
     return (
       <div className="auth-container">
-        <div className="auth-card">
+        <main className="auth-card">
           <h1 className="title">
             {isRegister ? "Create Account" : "Welcome Back"}
           </h1>
@@ -356,48 +344,57 @@ function App() {
             </p>
           )}
 
-          <input
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-          />
-
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-          />
-
-          <button
-            disabled={loading}
-            onClick={isRegister ? register : login}
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              isRegister ? register() : login();
+            }}
           >
-            {loading
-              ? "Processing..."
-              : isRegister
-              ? "Create Account"
-              : "Login"}
-          </button>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={form.email}
+              onChange={handleChange}
+            />
+
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete={isRegister ? "new-password" : "current-password"}
+              minLength="8"
+              maxLength="128"
+              required
+              value={form.password}
+              onChange={handleChange}
+            />
+
+            <button disabled={loading} type="submit">
+              {loading ? "Processing..." : isRegister ? "Create Account" : "Login"}
+            </button>
+          </form>
 
           <p className="switch">
             {isRegister
               ? "Already have an account?"
               : "Don't have an account?"}
-            <span onClick={() => setIsRegister(!isRegister)}>
+            <button type="button" className="link-button" onClick={() => setIsRegister(!isRegister)}>
               {isRegister ? " Login" : " Register"}
-            </span>
+            </button>
           </p>
-        </div>
+        </main>
       </div>
     );
   }
 
   // ---------------- DASHBOARD ----------------
   return (
-    <div className="dashboard">
+    <main className="dashboard">
       <div className="dashboard-header">
         <div>
           <p className="eyebrow">Smart Activity Tracker</p>
@@ -407,7 +404,7 @@ function App() {
         <button
           className="logout-button"
           onClick={() => {
-            localStorage.removeItem("token");
+            setToken(null);
             setActivities([]);
             setDashboardError("");
             setLoggedIn(false);
@@ -419,39 +416,25 @@ function App() {
 
       <section className="dashboard-card activity-form-card">
         <h2>Add Activity</h2>
-        <div className="activity-form-grid">
-          <input
-            name="title"
-            placeholder="Activity title"
-            value={activityForm.title}
-            onChange={handleActivityChange}
-          />
-          <input
-            name="category"
-            placeholder="Category"
-            value={activityForm.category}
-            onChange={handleActivityChange}
-          />
-          <input
-            name="location"
-            placeholder="Location"
-            value={activityForm.location}
-            onChange={handleActivityChange}
-          />
-          <input
-            name="date"
-            type="date"
-            value={activityForm.date}
-            onChange={handleActivityChange}
-          />
-          <input
-            name="time"
-            type="time"
-            value={activityForm.time}
-            onChange={handleActivityChange}
-          />
+        <form className="activity-form-grid" onSubmit={(event) => { event.preventDefault(); createActivity(); }}>
+          <label htmlFor="activity-title">Activity title
+            <input id="activity-title" name="title" maxLength="200" required value={activityForm.title} onChange={handleActivityChange} />
+          </label>
+          <label htmlFor="activity-category">Category
+            <input id="activity-category" name="category" maxLength="200" required value={activityForm.category} onChange={handleActivityChange} />
+          </label>
+          <label htmlFor="activity-location">Location
+            <input id="activity-location" name="location" maxLength="300" required value={activityForm.location} onChange={handleActivityChange} />
+          </label>
+          <label htmlFor="activity-date">Date
+            <input id="activity-date" name="date" type="date" required value={activityForm.date} onChange={handleActivityChange} />
+          </label>
+          <label htmlFor="activity-time">Time
+            <input id="activity-time" name="time" type="time" required value={activityForm.time} onChange={handleActivityChange} />
+          </label>
           <button
             className="primary-action"
+            type="submit"
             disabled={
               submittingActivity ||
               !activityForm.title ||
@@ -464,7 +447,7 @@ function App() {
           >
             {submittingActivity ? "Saving..." : "Add activity"}
           </button>
-        </div>
+        </form>
       </section>
 
       <section className="dashboard-card ai-card">
@@ -482,31 +465,36 @@ function App() {
           </button>
         </div>
 
-        <div className="ai-question-row">
-          <input
-            name="aiQuestion"
-            placeholder="Ask something like: What is my next activity?"
-            value={aiQuestion}
-            onChange={(e) => setAiQuestion(e.target.value)}
-          />
+        <form className="ai-question-row" onSubmit={(event) => { event.preventDefault(); askAiQuestion(); }}>
+          <label htmlFor="ai-question">Ask a question about your activities
+            <input
+              id="ai-question"
+              name="aiQuestion"
+              maxLength="1000"
+              required
+              value={aiQuestion}
+              onChange={(e) => setAiQuestion(e.target.value)}
+            />
+          </label>
           <button
             className="primary-action"
+            type="submit"
             disabled={aiLoading || !aiQuestion.trim() || activities.length === 0}
             onClick={askAiQuestion}
           >
             {aiLoading ? "Working..." : "Ask AI"}
           </button>
-        </div>
+        </form>
 
         {aiSummary && (
-          <div className="ai-output">
+          <div className="ai-output" aria-live="polite">
             <h3>Summary</h3>
             <p>{aiSummary}</p>
           </div>
         )}
 
         {aiAnswer && (
-          <div className="ai-output">
+          <div className="ai-output" aria-live="polite">
             <h3>Answer</h3>
             <p>{aiAnswer}</p>
           </div>
@@ -514,12 +502,12 @@ function App() {
       </section>
 
       {dashboardLoading ? (
-        <div className="dashboard-card">
+          <div className="dashboard-card" aria-live="polite">
           <p>Loading your activities...</p>
         </div>
       ) : dashboardError ? (
-        <div className="dashboard-card">
-          <p>{dashboardError}</p>
+          <div className="dashboard-card" role="alert">
+            <p>{dashboardError}</p>
         </div>
       ) : activities.length === 0 ? (
         <div className="dashboard-card">
@@ -547,7 +535,7 @@ function App() {
           ))}
         </div>
       )}
-    </div>
+    </main>
   );
 }
 

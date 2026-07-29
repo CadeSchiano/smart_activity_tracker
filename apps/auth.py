@@ -8,8 +8,8 @@ pwd_context = CryptContext(
 
 
 def hash_password(password: str):
-    # 🔥 FIX: limit password length
-    password = password[:72]
+    if not 8 <= len(password) <= 128:
+        raise ValueError("Password must be between 8 and 128 characters.")
     return pwd_context.hash(password)
 
 
@@ -17,7 +17,8 @@ def verify_password(plain_password: str, hashed_password: str):
     if not hashed_password:
         return False
 
-    plain_password = plain_password[:72]
+    if not 8 <= len(plain_password) <= 128:
+        return False
     try:
         return pwd_context.verify(plain_password, hashed_password)
     except (UnknownHashError, ValueError):
