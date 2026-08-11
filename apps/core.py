@@ -24,24 +24,31 @@ def create_activity(title, category, location, date, time, user_id):
 
 
 # ---------------- GET USER ACTIVITIES ----------------
-def get_user_activities(user_id):
+def get_user_activities(user_id, limit=None):
     db = SessionLocal()
 
-    activities = db.query(Activity).filter(Activity.user_id == user_id).all()
+    query = db.query(Activity).filter(Activity.user_id == user_id)
+    if limit is not None:
+        query = query.limit(limit)
+    activities = query.all()
 
     db.close()
     return activities
 
 
 # ---------------- DELETE ----------------
-def delete_activity(activity_id):
+def delete_activity(activity_id, user_id):
     db = SessionLocal()
 
-    activity = db.query(Activity).filter(Activity.id == activity_id).first()
+    activity = (
+        db.query(Activity)
+        .filter(Activity.id == activity_id, Activity.user_id == user_id)
+        .first()
+    )
 
     if activity:
         db.delete(activity)
         db.commit()
 
     db.close()
-    return True
+    return activity is not None

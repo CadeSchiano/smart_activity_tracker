@@ -5,6 +5,21 @@ body {
   color: white;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+
 /* CENTER */
 .auth-container {
   display: flex;
@@ -24,6 +39,23 @@ body {
   gap: 16px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-card label,
+.activity-form-grid label,
+.ai-question-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 /* TITLE */
@@ -81,11 +113,15 @@ body {
   color: #94a3b8;
 }
 
-.switch span {
+.link-button {
   color: #8b5cf6;
   cursor: pointer;
   margin-left: 6px;
   font-weight: 500;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
 }
 
 /* DASHBOARD */
@@ -124,6 +160,13 @@ body {
   background: rgba(2, 6, 23, 0.75);
   color: white;
   cursor: pointer;
+}
+
+.logout-button,
+.primary-action,
+.secondary-action,
+.delete-activity-button {
+  min-height: 44px;
 }
 
 .dashboard-card {
@@ -208,6 +251,10 @@ body {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   margin-top: 18px;
+}
+
+.ai-question-row label {
+  min-width: 0;
 }
 
 .ai-question-row input {

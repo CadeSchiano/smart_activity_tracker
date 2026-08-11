@@ -20,7 +20,7 @@ def test_create_get_and_delete_user_activity():
     assert len(all_activities) == 1
     assert all_activities[0].title == "Core Test"
 
-    core.delete_activity(activity.id)
+    assert core.delete_activity(activity.id, user_id)
     assert core.get_user_activities(user_id) == []
 
 

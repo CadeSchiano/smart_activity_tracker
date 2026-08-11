@@ -28,9 +28,9 @@ The application combines a **React frontend**, **FastAPI backend**, and an **LLM
 - Generate summaries and insights
 - Context-aware responses powered by LLM
 
-### 🔐 Authentication (Planned Upgrade)
-- Future implementation of user registration and login system
-- Secure user-based activity tracking
+### 🔐 Authentication
+- Password hashing and short-lived JWT access tokens
+- User-scoped activity access controls
 
 ### 🎨 Frontend (React)
 - Modern dashboard UI
@@ -126,6 +126,10 @@ Run backend:
 uvicorn apps.api:app --reload
 ```
 
+Before starting the backend, copy `.env.example` to `.env` and set a unique
+`JWT_SECRET_KEY` of at least 32 random characters. In production, set
+`CORS_ALLOW_ORIGINS` to the exact frontend URL. Never use `*` for this value.
+
 - API: http://127.0.0.1:8000
 - Swagger docs: http://127.0.0.1:8000/docs
 
@@ -164,7 +168,7 @@ npm run dev
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/ai/ask?q=your_question` | Ask a natural language question |
+| `POST` | `/ai/ask` | Ask a natural language question (`{"q": "..."}`) |
 | `GET` | `/ai/summary` | Get an AI-generated summary |
 
 ---
